@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -12,15 +13,34 @@ import { Task } from "./components/Task";
 import { AddTask } from "./components/AddTask";
 
 export default function App() {
-  const [tasks, setTasks] = useState([
-    "Take out the trash",
-    "Walk the dog",
-    "Review a pull request",
-    "Buy a lamp for the bedroom",
-  ]);
+  const [tasks, setTasks] = useState([]);
 
-  const handleAddTask = (task) => {
-    setTasks((currentTasks) => [...currentTasks, task]);
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        const storedTasks = await AsyncStorage.getItem("task-list");
+        if (storedTasks !== null) {
+          setTasks(JSON.parse(storedTasks));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    loadTasks();
+  }, []);
+
+  const handleAddTask = async (text) => {
+    const updatedTasks = [...tasks, { text, isCompleted: false }];
+    setTasks(updatedTasks);
+    await AsyncStorage.setItem("task-list", JSON.stringify(updatedTasks));
+  };
+
+  const toggleTaskCompletion = async (index) => {
+    const updatedTasks = [...tasks];
+    updatedTasks[index].isCompleted = !updatedTasks[index].isCompleted;
+    setTasks(updatedTasks);
+    await AsyncStorage.setItem("task-list", JSON.stringify(updatedTasks));
   };
 
   return (
@@ -33,7 +53,12 @@ export default function App() {
           <Text style={styles.sectionTitle}>Today's Tasks</Text>
           <ScrollView style={styles.items}>
             {tasks.map((task, index) => (
-              <Task key={index} text={task} />
+              <Task
+                key={index}
+                text={task.text}
+                isCompleted={task.isCompleted}
+                onPress={() => toggleTaskCompletion(index)}
+              />
             ))}
           </ScrollView>
         </View>
