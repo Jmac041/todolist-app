@@ -4,8 +4,8 @@ import {
   StyleSheet,
   Text,
   View,
-  ScrollView,
   SafeAreaView,
+  FlatList,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
@@ -31,7 +31,8 @@ export default function App() {
   }, []);
 
   const handleAddTask = async (text) => {
-    const updatedTasks = [...tasks, { text, isCompleted: false }];
+    const newTask = { text, isCompleted: false };
+    const updatedTasks = [...tasks, newTask];
     setTasks(updatedTasks);
     await AsyncStorage.setItem("task-list", JSON.stringify(updatedTasks));
   };
@@ -39,29 +40,44 @@ export default function App() {
   const toggleTaskCompletion = async (index) => {
     const updatedTasks = [...tasks];
     updatedTasks[index].isCompleted = !updatedTasks[index].isCompleted;
+
+    if (updatedTasks[index].isCompleted) {
+      const completedTask = updatedTasks.splice(index, 1)[0];
+      updatedTasks.push(completedTask);
+    }
+
+    setTasks(updatedTasks);
+    await AsyncStorage.setItem("task-list", JSON.stringify(updatedTasks));
+  };
+
+  const deleteTask = async (index) => {
+    const updatedTasks = [...tasks];
+    updatedTasks.splice(index, 1);
     setTasks(updatedTasks);
     await AsyncStorage.setItem("task-list", JSON.stringify(updatedTasks));
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.tasksWrapper}>
+        <Text style={styles.sectionTitle}>Today's Tasks</Text>
+        <FlatList
+          data={tasks}
+          renderItem={({ item, index }) => (
+            <Task
+              text={item.text}
+              isCompleted={item.isCompleted}
+              onPress={() => toggleTaskCompletion(index)}
+              onDelete={() => deleteTask(index)}
+            />
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
       >
-        <View style={styles.tasksWrapper}>
-          <Text style={styles.sectionTitle}>Today's Tasks</Text>
-          <ScrollView style={styles.items}>
-            {tasks.map((task, index) => (
-              <Task
-                key={index}
-                text={task.text}
-                isCompleted={task.isCompleted}
-                onPress={() => toggleTaskCompletion(index)}
-              />
-            ))}
-          </ScrollView>
-        </View>
         <AddTask onAddTask={handleAddTask} />
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -74,18 +90,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   tasksWrapper: {
-    flex: 1,
     paddingTop: 60,
     paddingHorizontal: 20,
-    shadowRadius: 14,
-    shadowOpacity: 0.1,
-    shadowColor: "black",
+    flex: 1,
   },
   sectionTitle: {
     fontSize: 35,
     fontWeight: "bold",
-  },
-  items: {
-    marginTop: 30,
+    marginBottom: 20,
   },
 });

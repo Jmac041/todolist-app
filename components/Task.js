@@ -1,18 +1,26 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export function Task({ text, onPress, isCompleted }) {
+export function Task({ text, onPress, onDelete, isCompleted }) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.item}>
-      <View style={styles.square}>
-        {isCompleted && <Text style={styles.checkmark}>&#10003;</Text>}
-      </View>
-      <Text
-        style={[styles.itemText, isCompleted ? styles.completedText : null]}
+    <View style={styles.item}>
+      <TouchableOpacity
+        onPress={onPress}
+        style={{ flex: 1, flexDirection: "row", alignItems: "center" }}
       >
-        {text}
-      </Text>
-    </TouchableOpacity>
+        <View style={styles.square}>
+          {isCompleted && <Text style={styles.checkmark}>&#10003;</Text>}
+        </View>
+        <Text
+          style={[styles.itemText, isCompleted ? styles.completedText : null]}
+        >
+          {text}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
+        <Text style={styles.deleteButtonText}>X</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -32,8 +40,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(141, 223, 218, 0.4)",
     borderRadius: 4,
     marginRight: 16,
-    justifyContent: "center",
-    alignItems: "center",
   },
   itemText: {
     color: "black",
@@ -46,5 +52,13 @@ const styles = StyleSheet.create({
   checkmark: {
     color: "#000",
     fontSize: 15,
+  },
+  deleteButton: {
+    marginLeft: "auto",
+    padding: 8,
+  },
+  deleteButtonText: {
+    color: "red",
+    fontWeight: "bold",
   },
 });
