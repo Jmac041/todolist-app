@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, TextInput, View, Button } from "react-native";
+import { StyleSheet, TextInput, View, Button, Keyboard } from "react-native"; // Import Keyboard
 
 export function AddTask({ onAddTask }) {
   const [text, setText] = useState("");
@@ -9,8 +9,10 @@ export function AddTask({ onAddTask }) {
   };
 
   const handleAddTask = () => {
+    console.log(`Add button has been pressed with task - ${text}`); // Log the action
     onAddTask(text);
     setText("");
+    Keyboard.dismiss(); // Dismiss the keyboard
   };
 
   return (
@@ -31,6 +33,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginHorizontal: 20,
     marginTop: 20,
+    marginBottom: 20,
   },
   input: {
     flex: 1,

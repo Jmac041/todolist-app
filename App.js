@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, ScrollView, SafeAreaView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { Task } from "./components/Task";
 import { AddTask } from "./components/AddTask";
 
@@ -17,17 +25,20 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.tasksWrapper}>
-        <Text style={styles.sectionTitle}>Today's Tasks</Text>
-        <ScrollView style={styles.items}>
-          {tasks.map((task, index) => (
-            <Task key={index} text={task} />
-          ))}
-        </ScrollView>
-      </View>
-      <View style={styles.addTaskWrapper}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <View style={styles.tasksWrapper}>
+          <Text style={styles.sectionTitle}>Today's Tasks</Text>
+          <ScrollView style={styles.items}>
+            {tasks.map((task, index) => (
+              <Task key={index} text={task} />
+            ))}
+          </ScrollView>
+        </View>
         <AddTask onAddTask={handleAddTask} />
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -41,25 +52,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 60,
     paddingHorizontal: 20,
+    shadowRadius: 14,
+    shadowOpacity: 0.1,
+    shadowColor: "black",
   },
   sectionTitle: {
-    fontSize: 24,
+    fontSize: 35,
     fontWeight: "bold",
   },
   items: {
     marginTop: 30,
-  },
-  addTaskWrapper: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    paddingTop: 10,
-    borderTopWidth: 1,
-
-    borderColor: "#cccccc",
-    backgroundColor: "white",
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 50,
   },
 });
